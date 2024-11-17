@@ -31,3 +31,11 @@
 <p><img align="left" src="https://github-readme-stats.vercel.app/api/top-langs?username=h4yme&show_icons=true&locale=en&layout=compact" alt="h4yme" /></p>
 
 <p>&nbsp;<img align="center" src="https://github-readme-stats.vercel.app/api?username=h4yme&show_icons=true&locale=en" alt="h4yme" /></p>
+
+<p>
+  <img align="center" src="https://github-readme-streak-stats.herokuapp.com/?user=h4yme&theme=dracula" alt="h4yme's streak stats" />
+</p>
+
+---
+
+[![](https://visitcount.itsvg.in/api?id=h4yme&icon=0&color=6)](https://visitcount.itsvg.in)
