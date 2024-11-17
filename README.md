@@ -39,6 +39,4 @@
   <img align="center" src="https://github-readme-streak-stats.herokuapp.com/?user=h4yme&theme=dracula" alt="h4yme's streak stats" />
 </p>
 
----
 
-[![](https://visitcount.itsvg.in/api?id=h4yme&icon=0&color=6)](https://visitcount.itsvg.in)
