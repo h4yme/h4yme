@@ -3,7 +3,7 @@
   <b>A passionate 20-year-old 3rd-year BSIT student at Quezon City University 🚀</b><br>
   Driven by curiosity and innovation, I am pursuing my dream of becoming a <b>Cloud Engineer</b> 🌥️.
 </p>
-<p align="left"> <a href="https://github.com/ryo-ma/github-profile-trophy"><img src="https://github-profile-trophy.vercel.app/?username=h4yme&theme=onedark" alt="h4yme" /></a> </p>
+<p align="center"> <a href="https://github.com/ryo-ma/github-profile-trophy"><img src="https://github-profile-trophy.vercel.app/?username=h4yme&theme=onedark" alt="h4yme" /></a> </p>
 
 ---
 
