@@ -1,23 +1,36 @@
-<h1 align="center">Hi 👋, I'm Jaimes Aldrich</h1>
-<h3 align="center">A passionate Java and Cloud Developer from Philippines!</h3>
+<h1 align="center">Hi 👋, I'm Jaimes Aldrich T. Manicar</h1>
+<p align="left">A passionate and driven 20-year-old 3rd-year BSIT student at Quezon City University. With a deep curiosity for technology and innovation, I am eagerly pursuing my dream of becoming a Cloud Engineer someday.</p>
 
 <p align="left"> <img src="https://komarev.com/ghpvc/?username=h4yme&label=Profile%20views&color=0e75b6&style=flat" alt="h4yme" /> </p>
 
 <p align="left"> <a href="https://github.com/ryo-ma/github-profile-trophy"><img src="https://github-profile-trophy.vercel.app/?username=h4yme" alt="h4yme" /></a> </p>
 
-- 🔭 I’m currently working on [LLISYNCH-Automated Teacher Management System](https://github.com/h4yme/LLISYNCH-Automated-Teacher-Management-System)
+🌟 **About Me**  
+Born and raised in the Philippines, I have always been fascinated by how technology connects people and transforms lives. My academic journey has been marked by dedication to mastering the intricacies of **IT development**, from coding applications to understanding the latest advancements in cloud computing.  
 
-- 🌱 I’m currently learning **Cloud Environment**
+📚 **Education & Interests**  
+I’m currently a 20-year-old **3rd-year BSIT student** at **Quezon City University**, constantly learning new technologies and frameworks. My focus lies in:  
+- **Java Development**  
+- **Database Management**  
+- **Cloud Solutions**  
 
-- 👯 I’m looking to collaborate on **Cloud Projects**
+I’m also keen on exploring **machine learning** and **automation**, envisioning how these technologies can revolutionize cloud environments and IT systems.  
 
-- 🤝 I’m looking for help with **Cloud Engineering**
+💡 **Skills & Projects**  
+Over the years, I’ve worked on a variety of projects that have honed my problem-solving skills and technical expertise. My most recent project is the **LLISYNCH Automated Teacher Management System**, where I successfully digitized and innovated complex workflows, demonstrating my capability to design efficient and scalable solutions.  
 
-- 💬 Ask me about **Java, MySQL, and Java Android Dev**
+🌱 **Goals**  
+In the near future, I aim to:  
+- Collaborate on impactful **cloud-based projects**  
+- Expand my knowledge in **AWS**, **Azure**, and other cloud platforms  
+- Achieve certification as a **Cloud Engineer**, focusing on creating scalable and secure solutions for businesses and individuals alike.  
 
-- 📫 How to reach me **manicar.jaimesaldrich.trecero@gmail.com**
+⚡ **Fun Facts**  
+- I’m a bit of a procrastinator but thrive under pressure!  
+- Gaming and exploring the latest tech trends are my favorite pastimes.  
+- I believe in continuous learning and strive to improve every day.  
 
-- ⚡ Fun fact **I love procrastinating hehe...**
+---
 
 <h3 align="left">Connect with me:</h3>
 <p align="left">
