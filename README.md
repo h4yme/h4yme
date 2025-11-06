@@ -1,7 +1,7 @@
 <h1 align="center">Hi 👋, I'm Jaimes Aldrich T. Manicar</h1>
 <img align="center" src="https://i.ibb.co/zxJLD5t/jaimes-header.png"/>
 <p align="center"> 
-  <b>A passionate 20-year-old 3rd-year BSIT student at Quezon City University 🚀</b><br>
+  <b>A passionate 21-years-old 4th-year BSIT student at Quezon City University 🚀</b><br>
   Driven by curiosity and innovation, I am pursuing my dream of becoming a <b>Cloud Engineer</b> 🌥️.
 </p>
 <p align="center"> <a href="https://github.com/ryo-ma/github-profile-trophy"><img src="https://github-profile-trophy.vercel.app/?username=h4yme&theme=onedark" alt="h4yme" /></a> </p>
@@ -14,7 +14,7 @@ Born and raised in the Philippines, I have always been fascinated by how technol
 ---
 
 ### 📚 **Education & Interests**  
-- 🎓 **3rd-Year BSIT Student** at **Quezon City University**  
+- 🎓 **4th-Year BSIT Student** at **Quezon City University**  
 - 🌐 Exploring **Java Development**, **Database Management**, and **Cloud Solutions**  
 - 🤖 Passionate about **Machine Learning** and **Automation**  
 
