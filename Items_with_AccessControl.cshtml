@@ -1,0 +1,1320 @@
+@model List<ELMIProject2.Models.ItemsModel>
+
+@{
+    ViewBag.Title = "Items";
+    Layout = "~/Views/Shared/SampleView.cshtml";
+
+    /* privileges */
+    bool Add = false, Edit = false, View = false, Delete = false;
+
+    if (ViewBag.UserModulePrivileges != null && ViewBag.UserModulePrivileges.Count != 0)
+    {
+        foreach (var access in ViewBag.UserModulePrivileges)
+        {
+            Add = Add || access.IsAdd;
+            Edit = Edit || access.IsEdit;
+            View = View || access.IsView;
+            Delete = Delete || access.IsDelete;
+        }
+    }
+}
+
+@if (ViewBag.UserInfo == null)
+{
+    <!-- No user info -->
+}
+else
+{
+    bool hasParentModule = false;
+    string[] userCompanies = ((string)ViewBag.UserInfo[0].Company).Split('/');
+
+    foreach (var account in ViewBag.UserInfo)
+    {
+        if (account.Module == "Items" && account.IsView == true || account.UserType != "0")
+        {
+            hasParentModule = true;
+            break;
+        }
+    }
+
+    if (!hasParentModule)
+    {
+        <script>
+            error404Show();
+        </script>
+    }
+    else
+    {
+        <div class="upper-container">
+            <div class="button-container d-block d-md-flex">
+                <button class="backBtn" onclick="window.location.href='/Inventory/Dashboard';">
+                    <svg height="16" width="16" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1024 1024">
+                        <path d="M874.690416 495.52477c0 11.2973-9.168824 20.466124-20.466124 20.466124l-604.773963 0 188.083679 188.083679c7.992021 7.992021 7.992021 20.947078 0 28.939099-4.001127 3.990894-9.240455 5.996574-14.46955 5.996574-5.239328 0-10.478655-1.995447-14.479783-5.996574l-223.00912-223.00912c-3.837398-3.837398-5.996574-9.046027-5.996574-14.46955 0-5.433756 2.159176-10.632151 5.996574-14.46955l223.019353-223.029586c7.992021-7.992021 20.957311-7.992021 28.949332 0 7.992021 8.002254 7.992021 20.957311 0 28.949332l-188.073446 188.073446 604.753497 0C865.521592 475.058646 874.690416 484.217237 874.690416 495.52477z"></path>
+                    </svg>
+                    <span>Back</span>
+                </button>
+                @if (Add)
+                {
+                    <button class="addBtn" onclick="openAddBoxModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span>Add New Box</span>
+                    </button>
+                }
+            </div>
+        </div>
+
+        <script>
+            // User privileges
+            const canAdd = @Add.ToString().ToLower();
+            const canEdit = @Edit.ToString().ToLower();
+            const canView = @View.ToString().ToLower();
+            const canDelete = @Delete.ToString().ToLower();
+
+            const loggedInUser = '@((ViewBag.UserInfo as List<ELMIProject2.Models.LoginModel>)?[0]?.UserName ?? "unknown")';
+        </script>
+
+        <div class="main-container">
+            <div class="grid-container">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-offset-8 col-md-4">
+                            <div class="form">
+                                <button id="searchBtn">
+                                    <svg width="17" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+                                        <path d="M7.667 12.667A5.333 5.333 0 107.667 2a5.333 5.333 0 000 10.667zM14.334 14l-2.9-2.9" stroke="currentColor" stroke-width="1.333" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </svg>
+                                </button>
+                                <input class="input" id="itemSearch" placeholder="Search Item Description..." type="text" autocomplete="off" onkeyup="searchBox()">
+                                <button id="resetSearch" onclick="resetSearch()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="list-container">
+                    <table class="table table-striped table-bordered" id="tbl_items">
+                        <thead>
+                            <tr>
+                                <th>ItemID</th>
+                                <th>ItemDescription</th>
+                                <th>Brand</th>
+                                <th>Created On</th>
+                                <th>Created By</th>
+                                <th>Active</th>
+
+                            </tr>
+                        </thead>
+                        <tbody id="itemsBody">
+                            @foreach (var item in Model)
+                            {
+                                <tr data-recid="@item.RecID"
+                                    data-itemid="@item.ItemID"
+                                    data-itemdesc="@item.ItemDescription"
+                                    data-brand="@item.Brand"
+                                    data-active="@item.Active"
+                                    class="clickable-row">
+                                    <td>@item.ItemID</td>
+                                    <td>@item.ItemDescription</td>
+                                    <td>@item.Brand</td>
+                                    <td>@item.CreatedDate</td>
+                                    <td>@item.CreatedBy</td>
+                                    <td>@item.Active</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <div id="loading" style="display: none;">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Box Modal -->
+        <div id="addBoxModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Add New Box</h2>
+                    <span class="close" onclick="closeAddBoxModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="addBoxForm">
+                        <div class="form-group">
+                            <label for="itemId">Item ID <span class="required">*</span></label>
+                            <input type="text" id="itemId" name="itemId" class="form-control" required placeholder="Enter Item ID" maxlength="50">
+                            <span class="error-msg" id="itemIdError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="itemDesc">Item Description <span class="required">*</span></label>
+                            <textarea id="itemDesc" name="itemDesc" class="form-control" rows="3" required placeholder="Enter Item Description" maxlength="500"></textarea>
+                            <span class="error-msg" id="itemDescError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="brand">Brand <span class="required">*</span></label>
+                            <select id="brand" name="brand" class="form-control" required>
+                                <option value="">Select Brand</option>
+                            </select>
+                            <span class="error-msg" id="brandError"></span>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn-cancel" onclick="closeAddBoxModal()">Cancel</button>
+                            <button type="submit" class="btn-submit">Save Box</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Box Modal -->
+        <div id="editBoxModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Edit Box</h2>
+                    <span class="close" onclick="closeEditBoxModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="editBoxForm">
+                        <input type="hidden" id="editRecID" name="editRecID">
+                        <div class="form-group">
+                            <label for="editItemId">Item ID <span class="required">*</span></label>
+                            <input type="text" id="editItemId" name="editItemId" class="form-control" required placeholder="Enter Item ID" readonly style="background-color: #f0f0f0;">
+                            <span class="error-msg" id="editItemIdError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="editItemDesc">Item Description <span class="required">*</span></label>
+                            <textarea id="editItemDesc" name="editItemDesc" class="form-control" rows="3" required placeholder="Enter Item Description" maxlength="500"></textarea>
+                            <span class="error-msg" id="editItemDescError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="editBrand">Brand <span class="required">*</span></label>
+                            <select id="editBrand" name="editBrand" class="form-control" required>
+                                <option value="">Select Brand</option>
+                            </select>
+                            <span class="error-msg" id="editBrandError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="editActive">Active Status <span class="required">*</span></label>
+                            <div class="toggle-container">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="editActive" name="editActive">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <span class="toggle-label" id="toggleLabel">Active</span>
+                            </div>
+                            <span class="error-msg" id="editActiveError"></span>
+                        </div>
+                        <div class="form-actions">
+                            @if (Delete)
+                            {
+                                <button type="button" class="btn-delete" onclick="deleteBox()">Delete</button>
+                            }
+                            <div style="flex: 1;"></div>
+                            <button type="button" class="btn-cancel" onclick="closeEditBoxModal()">Cancel</button>
+                            <button type="submit" class="btn-submit">Update Box</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<link rel="stylesheet" type="text/css" href="~/Content/masterfiles.css" />
+
+<style>
+    /* Toggle Switch Styles */
+    .toggle-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 26px;
+        margin: 0;
+    }
+
+        .toggle-switch input[type="checkbox"] {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.3s;
+        border-radius: 26px;
+    }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+    .toggle-switch input:checked + .toggle-slider {
+        background-color: #28a745;
+    }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+    .toggle-switch input:focus + .toggle-slider {
+        box-shadow: 0 0 1px #28a745;
+    }
+
+    .toggle-label {
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+        user-select: none;
+    }
+
+    .toggle-switch input:checked ~ .toggle-label {
+        color: #28a745;
+    }
+
+    table, th, td {
+        border: none;
+        text-align: center;
+    }
+
+    tbody tr:hover {
+        cursor: pointer;
+        background-color: #c7d6e3;
+    }
+
+    thead tr:hover {
+        cursor: default;
+        background-color: none;
+    }
+
+    thead {
+        position: sticky;
+        top: 0;
+        background: #192637;
+        color: #fff;
+    }
+
+    table {
+        border-radius: 4px;
+    }
+
+    .addBtn {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        transition: background-color 0.3s;
+        margin-left: 10px;
+    }
+
+        .addBtn:hover {
+            background-color: #218838;
+        }
+
+    .button-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.5);
+        animation: fadeIn 0.3s;
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        animation: slideIn 0.3s;
+    }
+
+    .modal-header {
+        padding: 20px;
+        background-color: #192637;
+        color: white;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+    .close {
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+
+        .close:hover {
+            color: #ccc;
+        }
+
+    .modal-body {
+        padding: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+    .required {
+        color: #dc3545;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #192637;
+        }
+
+        .form-control.error {
+            border-color: #dc3545;
+        }
+
+    .error-msg {
+        color: #dc3545;
+        font-size: 12px;
+        display: block;
+        margin-top: 5px;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .btn-cancel, .btn-submit {
+        padding: 10px 24px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+    .btn-cancel {
+        background-color: #6c757d;
+        color: white;
+    }
+
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+
+    .btn-submit {
+        background-color: #28a745;
+        color: white;
+    }
+
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+
+    .btn-delete {
+        padding: 10px 24px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s;
+        background-color: #dc3545;
+        color: white;
+    }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes slideIn {
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+</style>
+
+<script>
+    let offset = 0;
+    const pageSize = 1000;
+    let loading = false;
+    let allDataLoaded = false;
+
+    // Validation helper functions
+    function validateItemId(itemId) {
+        const errors = [];
+
+        if (!itemId || itemId.trim() === '') {
+            errors.push('Item ID is required');
+        } else {
+            if (itemId.length < 3) {
+                errors.push('Item ID must be at least 3 characters');
+            }
+            if (itemId.length > 50) {
+                errors.push('Item ID must not exceed 50 characters');
+            }
+            if (!/^[a-zA-Z0-9_-]+$/.test(itemId)) {
+                errors.push('Item ID can only contain letters, numbers, hyphens, and underscores');
+            }
+        }
+
+        return errors;
+    }
+
+    function validateItemDesc(itemDesc) {
+        const errors = [];
+
+        if (!itemDesc || itemDesc.trim() === '') {
+            errors.push('Item Description is required');
+        } else {
+            if (itemDesc.length < 5) {
+                errors.push('Item Description must be at least 5 characters');
+            }
+            if (itemDesc.length > 500) {
+                errors.push('Item Description must not exceed 500 characters');
+            }
+        }
+
+        return errors;
+    }
+
+    function validateBrand(brand) {
+        const errors = [];
+
+        if (!brand || brand === '') {
+            errors.push('Brand is required');
+        }
+
+        return errors;
+    }
+
+    function showFieldError(fieldId, errorId, errors) {
+        const field = $(fieldId);
+        const errorSpan = $(errorId);
+
+        if (errors.length > 0) {
+            field.addClass('error');
+            errorSpan.text(errors.join('. '));
+            return false;
+        } else {
+            field.removeClass('error');
+            errorSpan.text('');
+            return true;
+        }
+    }
+
+    function updateToggleLabel(isActive) {
+        const label = $('#toggleLabel');
+        if (isActive) {
+            label.text('Active').css('color', '#28a745');
+        } else {
+            label.text('Inactive').css('color', '#6c757d');
+        }
+    }
+
+    function attachRowClickHandlers() {
+        $('#itemsBody tr.clickable-row').off('click').on('click', function () {
+            const recID = $(this).data('recid');
+            const itemID = $(this).data('itemid');
+            const itemDesc = $(this).data('itemdesc');
+            const brand = $(this).data('brand');
+            const active = $(this).data('active');
+
+            openEditBoxModal(recID, itemID, itemDesc, brand, active);
+        });
+    }
+
+    $(document).ready(function () {
+
+        // Load brands on page load
+        loadBrands();
+
+        // Real-time validation for Add form
+        $('#itemId').on('input', function () {
+            const errors = validateItemId($(this).val());
+            showFieldError('#itemId', '#itemIdError', errors);
+        });
+
+        $('#itemDesc').on('input', function () {
+            const errors = validateItemDesc($(this).val());
+            showFieldError('#itemDesc', '#itemDescError', errors);
+        });
+
+        $('#brand').on('change', function () {
+            const errors = validateBrand($(this).val());
+            showFieldError('#brand', '#brandError', errors);
+        });
+
+        // Real-time validation for Edit form
+        $('#editItemDesc').on('input', function () {
+            const errors = validateItemDesc($(this).val());
+            showFieldError('#editItemDesc', '#editItemDescError', errors);
+        });
+
+        $('#editBrand').on('change', function () {
+            const errors = validateBrand($(this).val());
+            showFieldError('#editBrand', '#editBrandError', errors);
+        });
+
+        // Toggle switch change handler
+        $('#editActive').on('change', function () {
+            updateToggleLabel($(this).is(':checked'));
+        });
+
+        function loadBrands() {
+            $.ajax({
+                url: '/Inventory/GetBoxBrands',
+                type: 'GET',
+                success: function (brands) {
+                    const brandSelect = $('#brand');
+                    const editBrandSelect = $('#editBrand');
+
+                    brandSelect.empty();
+                    editBrandSelect.empty();
+
+                    brandSelect.append('<option value="">Select Brand</option>');
+                    editBrandSelect.append('<option value="">Select Brand</option>');
+
+                    brands.forEach(function (brand) {
+                        brandSelect.append(`<option value="${brand}">${brand}</option>`);
+                        editBrandSelect.append(`<option value="${brand}">${brand}</option>`);
+                    });
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load brands.',
+                        confirmButtonColor: '#192637'
+                    });
+                }
+            });
+        }
+
+        function loadItems(searchTerm) {
+            if (loading) return;
+            loading = true;
+            allDataLoaded = false;
+            $('#loading').show();
+
+            $.ajax({
+                url: '/Inventory/LoadItems',
+                data: { offset: 0, pageSize: pageSize, searchTerm: searchTerm },
+                success: function (data) {
+                    $('#itemsBody').html(data);
+                    offset = pageSize;
+                    $('.list-container').on('scroll', onScrollLoadMore);
+
+                    // Add click handlers to rows
+                    attachRowClickHandlers();
+                },
+                complete: function () {
+                    loading = false;
+                    $('#loading').hide();
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load items.',
+                        confirmButtonColor: '#192637'
+                    });
+                }
+            });
+        }
+
+        function loadMoreItems(searchTerm) {
+            if (loading || allDataLoaded) return;
+            loading = true;
+            $('#loading').show();
+
+            $.ajax({
+                url: '/Inventory/LoadItems',
+                data: { offset: offset, pageSize: pageSize, searchTerm: searchTerm },
+                success: function (data) {
+                    if ($.trim(data).length === 0) {
+                        allDataLoaded = true;
+                        $('.list-container').off('scroll', onScrollLoadMore);
+                    } else {
+                        $('#itemsBody').append(data);
+                        offset += pageSize;
+
+                        // Add click handlers to new rows
+                        attachRowClickHandlers();
+                    }
+                },
+                complete: function () {
+                    loading = false;
+                    $('#loading').hide();
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load more items.',
+                        confirmButtonColor: '#192637'
+                    });
+                }
+            });
+        }
+
+        function onScrollLoadMore() {
+            var container = $('.list-container');
+            if (container.scrollTop() + container.innerHeight() >= container[0].scrollHeight - 200) {
+                loadMoreItems($('#itemSearch').val());
+            }
+        }
+
+        // Initial load
+        loadItems('');
+
+        // Form submission for creating
+        $('#addBoxForm').on('submit', function (e) {
+            e.preventDefault();
+
+            // Check privilege
+            if (!canAdd) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Access Denied',
+                    text: 'You do not have permission to add new items.',
+                    confirmButtonColor: '#192637'
+                });
+                return;
+            }
+
+            // Clear previous errors
+            $('.error-msg').text('');
+            $('.form-control').removeClass('error');
+
+            const itemId = $('#itemId').val().trim();
+            const itemDesc = $('#itemDesc').val().trim();
+            const brand = $('#brand').val();
+
+            // Validate all fields
+            const itemIdErrors = validateItemId(itemId);
+            const itemDescErrors = validateItemDesc(itemDesc);
+            const brandErrors = validateBrand(brand);
+
+            const isItemIdValid = showFieldError('#itemId', '#itemIdError', itemIdErrors);
+            const isItemDescValid = showFieldError('#itemDesc', '#itemDescError', itemDescErrors);
+            const isBrandValid = showFieldError('#brand', '#brandError', brandErrors);
+
+            if (!isItemIdValid || !isItemDescValid || !isBrandValid) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validation Error',
+                    text: 'Please fix the errors in the form before submitting.',
+                    confirmButtonColor: '#192637'
+                });
+                return;
+            }
+
+            // Show confirmation dialog
+            Swal.fire({
+                title: 'Create New Box?',
+                html: `
+                    <div style="text-align: left; margin: 20px 0;">
+                        <p><strong>Item ID:</strong> ${itemId}</p>
+                        <p><strong>Description:</strong> ${itemDesc}</p>
+                        <p><strong>Brand:</strong> ${brand}</p>
+                    </div>
+                    <p style="margin-top: 20px;">Do you want to create this box?</p>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, create it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Creating Box...',
+                        text: 'Please wait',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Submit to server
+                    $.ajax({
+                        url: '/Inventory/CreateBox',
+                        type: 'POST',
+                        data: {
+                            ItemId: itemId,
+                            ItemDesc: itemDesc,
+                            Brand: brand
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: 'Box created successfully!',
+                                    confirmButtonColor: '#28a745',
+                                    timer: 2000,
+                                    timerProgressBar: true
+                                }).then(() => {
+                                    closeAddBoxModal(true);
+                                    // Reload items
+                                    offset = 0;
+                                    loadItems('');
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Failed',
+                                    text: response.message || 'Failed to create box.',
+                                    confirmButtonColor: '#192637'
+                                });
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error details:', xhr.responseText);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'An error occurred: ' + (xhr.responseText || error),
+                                confirmButtonColor: '#192637'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        // Form submission for editing
+        $('#editBoxForm').on('submit', function (e) {
+            e.preventDefault();
+
+            // Check privilege
+            if (!canEdit) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Access Denied',
+                    text: 'You do not have permission to edit items.',
+                    confirmButtonColor: '#192637'
+                });
+                return;
+            }
+
+            // Clear previous errors
+            $('.error-msg').text('');
+            $('.form-control').removeClass('error');
+
+            const recID = $('#editRecID').val();
+            const itemId = $('#editItemId').val();
+            const itemDesc = $('#editItemDesc').val().trim();
+            const brand = $('#editBrand').val();
+            const active = $('#editActive').is(':checked') ? '1' : '0';
+
+            // Validate all fields
+            const itemDescErrors = validateItemDesc(itemDesc);
+            const brandErrors = validateBrand(brand);
+
+            const isItemDescValid = showFieldError('#editItemDesc', '#editItemDescError', itemDescErrors);
+            const isBrandValid = showFieldError('#editBrand', '#editBrandError', brandErrors);
+
+            if (!isItemDescValid || !isBrandValid) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validation Error',
+                    text: 'Please fix the errors in the form before submitting.',
+                    confirmButtonColor: '#192637'
+                });
+                return;
+            }
+
+            // Show confirmation dialog
+            Swal.fire({
+                title: 'Update Box?',
+                html: `
+                    <div style="text-align: left; margin: 20px 0;">
+                        <p><strong>Item ID:</strong> ${itemId}</p>
+                        <p><strong>Description:</strong> ${itemDesc}</p>
+                        <p><strong>Brand:</strong> ${brand}</p>
+                        <p><strong>Active:</strong> ${active === '1' ? 'Yes' : 'No'}</p>
+                    </div>
+                    <p style="margin-top: 20px;">Do you want to save these changes?</p>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, update it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Updating Box...',
+                        text: 'Please wait',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Submit to server
+                    $.ajax({
+                        url: '/Inventory/UpdateBox',
+                        type: 'POST',
+                        data: {
+                            RecID: recID,
+                            ItemDesc: itemDesc,
+                            Brand: brand,
+                            Active: active
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: 'Box updated successfully!',
+                                    confirmButtonColor: '#28a745',
+                                    timer: 2000,
+                                    timerProgressBar: true
+                                }).then(() => {
+                                    closeEditBoxModal(true);
+                                    // Reload items
+                                    offset = 0;
+                                    loadItems('');
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Notice',
+                                    text: response.message || 'Failed to update box.',
+                                    confirmButtonColor: '#192637'
+                                });
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error details:', xhr.responseText);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'An error occurred: ' + (xhr.responseText || error),
+                                confirmButtonColor: '#192637'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        window.searchBox = function () {
+            var input = document.getElementById("itemSearch");
+            var filter = (input.value || "").toUpperCase();
+            var tbody = document.getElementById("itemsBody");
+            if (!tbody) return;
+
+            var rows = tbody.getElementsByTagName("tr");
+            var colIndex = 1;
+
+            for (var i = 0; i < rows.length; i++) {
+                var cell = rows[i].getElementsByTagName("td")[colIndex];
+                var text = cell ? (cell.textContent || cell.innerText) : "";
+                rows[i].style.display = text.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+            }
+        };
+    });
+
+    function openAddBoxModal() {
+        // Check if user has Add privilege
+        if (!canAdd) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Access Denied',
+                text: 'You do not have permission to add new items.',
+                confirmButtonColor: '#192637'
+            });
+            return;
+        }
+
+        document.getElementById('addBoxModal').style.display = 'block';
+        document.getElementById('addBoxForm').reset();
+        $('.error-msg').text('');
+        $('.form-control').removeClass('error');
+    }
+
+    function closeAddBoxModal(force = false) {
+        // Force close without confirmation (used after successful submit)
+        if (force) {
+            document.getElementById('addBoxModal').style.display = 'none';
+            document.getElementById('addBoxForm').reset();
+            $('.error-msg').text('');
+            $('.form-control').removeClass('error');
+            return;
+        }
+
+        // Check if form has unsaved changes
+        const itemId = $('#itemId').val().trim();
+        const itemDesc = $('#itemDesc').val().trim();
+        const brand = $('#brand').val();
+
+        if (itemId || itemDesc || brand) {
+            Swal.fire({
+                title: 'Discard Changes?',
+                text: 'You have unsaved changes. Are you sure you want to close this form?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, discard',
+                cancelButtonText: 'No, keep editing'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('addBoxModal').style.display = 'none';
+                    document.getElementById('addBoxForm').reset();
+                    $('.error-msg').text('');
+                    $('.form-control').removeClass('error');
+                }
+            });
+        } else {
+            document.getElementById('addBoxModal').style.display = 'none';
+        }
+    }
+
+    function openEditBoxModal(recID, itemID, itemDesc, brand, active) {
+        // Check if user has Edit privilege
+        if (!canEdit) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Access Denied',
+                text: 'You do not have permission to edit items.',
+                confirmButtonColor: '#192637'
+            });
+            return;
+        }
+
+        document.getElementById('editBoxModal').style.display = 'block';
+        $('#editRecID').val(recID);
+        $('#editItemId').val(itemID);
+        $('#editItemDesc').val(itemDesc);
+        $('#editBrand').val(brand);
+
+        // Set toggle switch state
+        const isActive = active === 'Yes' || active === '1' || active === 1;
+        $('#editActive').prop('checked', isActive);
+        updateToggleLabel(isActive);
+
+        $('.error-msg').text('');
+        $('.form-control').removeClass('error');
+
+        // Store original values for change detection
+        $('#editBoxForm').data('original', {
+            itemDesc: itemDesc,
+            brand: brand,
+            active: isActive ? '1' : '0'
+        });
+    }
+
+    function closeEditBoxModal(force = false) {
+        // Force close without confirmation (used after successful submit)
+        if (force) {
+            document.getElementById('editBoxModal').style.display = 'none';
+            $('#editBoxForm').removeData('original');
+            $('.error-msg').text('');
+            $('.form-control').removeClass('error');
+            return;
+        }
+
+        // Check if form has unsaved changes
+        const original = $('#editBoxForm').data('original');
+        const current = {
+            itemDesc: $('#editItemDesc').val().trim(),
+            brand: $('#editBrand').val(),
+            active: $('#editActive').is(':checked') ? '1' : '0'
+        };
+
+        const hasChanges = original && (
+            original.itemDesc !== current.itemDesc ||
+            original.brand !== current.brand ||
+            original.active !== current.active
+        );
+
+        if (hasChanges) {
+            Swal.fire({
+                title: 'Discard Changes?',
+                text: 'You have unsaved changes. Are you sure you want to close this form?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, discard',
+                cancelButtonText: 'No, keep editing'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('editBoxModal').style.display = 'none';
+                    $('#editBoxForm').removeData('original');
+                    $('.error-msg').text('');
+                    $('.form-control').removeClass('error');
+                }
+            });
+        } else {
+            document.getElementById('editBoxModal').style.display = 'none';
+            $('#editBoxForm').removeData('original');
+            $('.error-msg').text('');
+            $('.form-control').removeClass('error');
+        }
+    }
+
+    function deleteBox() {
+        // Check if user has Delete privilege
+        if (!canDelete) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Access Denied',
+                text: 'You do not have permission to delete items.',
+                confirmButtonColor: '#192637'
+            });
+            return;
+        }
+
+        const recID = $('#editRecID').val();
+        const itemID = $('#editItemId').val();
+        const itemDesc = $('#editItemDesc').val();
+
+        Swal.fire({
+            title: 'Delete Box?',
+            html: `
+                <div style="text-align: left; margin: 20px 0;">
+                    <p><strong>Item ID:</strong> ${itemID}</p>
+                    <p><strong>Description:</strong> ${itemDesc}</p>
+                </div>
+                <p style="margin-top: 20px; color: #dc3545; font-weight: bold;">⚠️ This action cannot be undone!</p>
+                <p>Are you sure you want to delete this box?</p>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading
+                Swal.fire({
+                    title: 'Deleting Box...',
+                    text: 'Please wait',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    url: '/Inventory/DeleteBox',
+                    type: 'POST',
+                    data: { RecID: recID },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: 'Box has been deleted successfully.',
+                                confirmButtonColor: '#28a745',
+                                timer: 2000,
+                                timerProgressBar: true
+                            }).then(() => {
+                                closeEditBoxModal(true);
+                                // Reload items
+                                offset = 0;
+                                loadItems('');
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Failed',
+                                text: response.message || 'Failed to delete box.',
+                                confirmButtonColor: '#192637'
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error details:', xhr.responseText);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred: ' + (xhr.responseText || error),
+                            confirmButtonColor: '#192637'
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    function resetSearch() {
+        $('#itemSearch').val('');
+        searchBox();
+
+        // Optional: Show toast notification
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+        });
+
+        Toast.fire({
+            icon: 'info',
+            title: 'Search cleared'
+        });
+    }
+
+    // Close modal when clicking outside (with confirmation if there are changes)
+    window.onclick = function (event) {
+        const addModal = document.getElementById('addBoxModal');
+        const editModal = document.getElementById('editBoxModal');
+
+        if (event.target == addModal) {
+            closeAddBoxModal();
+        } else if (event.target == editModal) {
+            closeEditBoxModal();
+        }
+    }
+
+    // Prevent accidental page close with unsaved changes
+    window.addEventListener('beforeunload', function (e) {
+        const addModalOpen = document.getElementById('addBoxModal').style.display === 'block';
+        const editModalOpen = document.getElementById('editBoxModal').style.display === 'block';
+
+        if (addModalOpen) {
+            const itemId = $('#itemId').val().trim();
+            const itemDesc = $('#itemDesc').val().trim();
+            const brand = $('#brand').val();
+
+            if (itemId || itemDesc || brand) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        }
+
+        if (editModalOpen) {
+            const original = $('#editBoxForm').data('original');
+            const current = {
+                itemDesc: $('#editItemDesc').val().trim(),
+                brand: $('#editBrand').val(),
+                active: $('#editActive').is(':checked') ? '1' : '0'
+            };
+
+            const hasChanges = original && (
+                original.itemDesc !== current.itemDesc ||
+                original.brand !== current.brand ||
+                original.active !== current.active
+            );
+
+            if (hasChanges) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        }
+    });
+
+    // ESC key to close modals
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            const addModalOpen = document.getElementById('addBoxModal').style.display === 'block';
+            const editModalOpen = document.getElementById('editBoxModal').style.display === 'block';
+
+            if (addModalOpen) {
+                closeAddBoxModal();
+            } else if (editModalOpen) {
+                closeEditBoxModal();
+            }
+        }
+    });
+</script>
