@@ -4,7 +4,12 @@ This directory contains updated stored procedures with comprehensive logging cap
 
 ## Overview
 
-The database system has been enhanced with a robust logging mechanism that tracks all database operations, including SELECT, INSERT, UPDATE, DELETE operations, and errors.
+The database system has been enhanced with a robust logging mechanism that tracks critical database operations. The logging strategy is selective to optimize performance and reduce log table growth:
+
+- **All INSERT, UPDATE, DELETE operations** are fully logged for compliance and audit trails
+- **Critical search operations** (e.g., SearchOnhandByLocation, SearchHistory) are logged for business intelligence
+- **All errors** are automatically logged regardless of operation type
+- **Routine SELECT operations** are not logged to minimize performance impact and storage requirements
 
 ## Implemented Stored Procedures
 
@@ -78,32 +83,19 @@ The logging table includes optimized indexes for common query patterns:
 
 ## Logged Operations
 
-### 1. **SELECT Operations**
-All data retrieval operations are logged with:
+### 1. **SEARCH Operations (Selective)**
+Critical search operations are logged to provide business intelligence while minimizing log volume. These operations are logged with:
 - Tag name
 - Search parameters
 - Number of rows returned
 - Execution time
 - User context
 
-**Logged Tags:**
-- `GetInvenMonitoringHeader`
-- `GetReceiving`
-- `GetTransfer`
-- `GetOnhand`
-- `SearchOnhandByLocation`
-- `GetAvailableItems`
-- `getHistory`
-- `SearchHistory`
-- `GetInvenMonitoringHeaderByRecID`
-- `GetInvenMonitoringHeaderByTranID`
-- `GetInvenMonitoringDetailsByTranID`
-- `getItemID`
-- `getWarehouse`
-- `GetLocation`
-- `UserBranch`
-- `Branch`
-- `getVendorID`
+**Logged Search Tags (SP_InvenMonitoringHeader):**
+- `SearchOnhandByLocation` - Tracks on-hand inventory searches by location
+- `SearchHistory` - Tracks historical transaction searches
+
+**Note:** Routine SELECT operations (e.g., dropdown population, single record retrieval by ID, warehouse lists, etc.) are NOT logged to optimize performance. Only user-initiated search operations that provide business value are tracked.
 
 ### 2. **INSERT Operations**
 All record creation operations are logged with:
@@ -158,6 +150,66 @@ All errors are automatically logged with:
 - Full error message
 - Context information (parameters, user, etc.)
 - Execution time before failure
+
+---
+
+## Selective Logging Strategy
+
+### Rationale
+
+The logging implementation uses a selective approach to balance audit requirements with system performance:
+
+**What IS Logged:**
+1. **Data Modifications** (INSERT, UPDATE, DELETE)
+   - Critical for compliance and audit trails
+   - Provides complete change history
+   - Enables data recovery and forensic analysis
+
+2. **Critical Search Operations**
+   - SearchOnhandByLocation, SearchHistory (SP_InvenMonitoringHeader)
+   - User-initiated searches with business intelligence value
+   - Helps understand usage patterns and data access trends
+
+3. **All Errors**
+   - Automatic error capture regardless of operation type
+   - Essential for troubleshooting and system health monitoring
+   - Includes full error context and stack traces
+
+**What is NOT Logged:**
+1. **Routine SELECT Operations**
+   - Dropdown population (getWarehouse, getItemID, getBoxBrand, etc.)
+   - Single record retrieval by ID (GetByRecID, GetByTranID, etc.)
+   - List operations for UI display (GetReceiving, GetTransfer, etc.)
+   - Reference data queries (Branch, UserBranch, GetLocation, etc.)
+
+### Benefits of Selective Logging
+
+1. **Performance Optimization**
+   - Reduced INSERT operations on log tables
+   - Less index maintenance overhead
+   - Faster query execution
+
+2. **Storage Efficiency**
+   - Smaller log table sizes
+   - Reduced backup and archival requirements
+   - Lower storage costs
+
+3. **Focused Analytics**
+   - Log data contains only actionable information
+   - Easier to identify trends and patterns
+   - Reduced noise in audit reports
+
+4. **Maintained Compliance**
+   - All data changes are tracked
+   - Complete audit trail for modifications
+   - Error tracking ensures system reliability
+
+### Implementation Notes
+
+- Logging variables are still declared for all operations to support error handling
+- TRY-CATCH blocks remain active for all operations
+- Only the final log INSERT is conditional based on operation type
+- Error logging is never skipped regardless of operation type
 
 ---
 
@@ -405,12 +457,37 @@ Execute the updated stored procedure script:
 
 ### Step 4: Test the Implementation
 ```sql
--- Test a simple SELECT operation
+-- Test a critical search operation (WILL BE LOGGED)
 EXEC SP_InvenMonitoringHeader
-    @Tag = 'getItemID';
+    @Tag = 'SearchOnhandByLocation',
+    @ItemID = 'ITEM-001',
+    @Warehouse = 'WH-001';
 
 -- Verify it was logged
 SELECT TOP 1 * FROM dbo.InvenMonitoringLog
+WHERE Tag = 'SearchOnhandByLocation'
+ORDER BY LogDate DESC;
+
+-- Test a routine SELECT operation (WILL NOT BE LOGGED)
+EXEC SP_InvenMonitoringHeader
+    @Tag = 'getItemID';
+
+-- Verify it was NOT logged (should return no new entries)
+SELECT TOP 1 * FROM dbo.InvenMonitoringLog
+WHERE Tag = 'getItemID'
+ORDER BY LogDate DESC;
+-- Expected: No results (routine SELECT not logged)
+
+-- Test an INSERT operation (WILL BE LOGGED)
+EXEC SP_InvenMonitoringHeader
+    @Tag = 'InsertInvenMonitoringHeader',
+    @TranType = 'Receiving',
+    @Warehouse = 'WH-001',
+    @UserID = 'test.user';
+
+-- Verify the INSERT was logged
+SELECT TOP 1 * FROM dbo.InvenMonitoringLog
+WHERE Tag = 'InsertInvenMonitoringHeader'
 ORDER BY LogDate DESC;
 ```
 
@@ -577,6 +654,7 @@ For questions or issues:
 |---------|------|---------|
 | 1.0 | 2025-11-20 | Initial implementation with comprehensive logging for SP_InvenMonitoringHeader |
 | 1.1 | 2025-11-20 | Added comprehensive logging for SP_BoxList |
+| 2.0 | 2025-11-20 | Implemented selective logging strategy - removed routine SELECT logging, retained critical search operations (SearchOnhandByLocation, SearchHistory) and all INSERT/UPDATE/DELETE operations |
 
 ---
 
@@ -639,15 +717,17 @@ The BoxListLog table includes optimized indexes:
 
 ## Logged Operations for BoxList
 
-### 1. **SELECT Operations**
+### 1. **SELECT Operations (NOT LOGGED)**
 
 **Tag: ItemsGetList**
 - Retrieves paginated list of boxes with filtering
-- Logs: search term, offset, fetch size, rows returned, execution time
+- **NOT LOGGED** - Routine data retrieval operation
 
 **Tag: getBoxBrand**
 - Retrieves distinct list of box brands
-- Logs: rows returned, execution time
+- **NOT LOGGED** - Dropdown population operation
+
+**Note:** BoxList SELECT operations are not logged to minimize performance impact. Only INSERT, UPDATE, DELETE operations and errors are tracked.
 
 ### 2. **INSERT Operations**
 
@@ -819,18 +899,21 @@ GROUP BY Tag, OperationType
 ORDER BY AvgExecutionTime_MS DESC;
 ```
 
-### Search Activity Report
+### Critical Search Activity Report (InvenMonitoring)
 ```sql
+-- This query shows only critical searches (SearchOnhandByLocation, SearchHistory)
+-- Routine SELECT operations are not logged
 SELECT
     CAST(LogDate AS DATE) AS SearchDate,
+    Tag,
     COUNT(*) AS SearchCount,
     COUNT(DISTINCT UserID) AS UniqueUsers,
     AVG(RowsAffected) AS AvgResultsReturned
-FROM dbo.BoxListLog
-WHERE Tag = 'ItemsGetList'
+FROM dbo.InvenMonitoringLog
+WHERE Tag IN ('SearchOnhandByLocation', 'SearchHistory')
     AND LogDate >= DATEADD(DAY, -30, GETDATE())
-GROUP BY CAST(LogDate AS DATE)
-ORDER BY SearchDate DESC;
+GROUP BY CAST(LogDate AS DATE), Tag
+ORDER BY SearchDate DESC, Tag;
 ```
 
 ### Audit Trail - Complete Box History
@@ -890,16 +973,18 @@ ORDER BY i.name;
 
 ### Step 4: Test the Implementation
 ```sql
--- Test a SELECT operation
+-- Test a SELECT operation (WILL NOT BE LOGGED)
 EXEC SP_BoxList
     @tag = 'ItemsGetList',
     @SearchTerm = '';
 
--- Verify it was logged
+-- Verify it was NOT logged
 SELECT TOP 1 * FROM dbo.BoxListLog
+WHERE Tag = 'ItemsGetList'
 ORDER BY LogDate DESC;
+-- Expected: No results (SELECT operations not logged)
 
--- Test an INSERT operation
+-- Test an INSERT operation (WILL BE LOGGED)
 EXEC SP_BoxList
     @tag = 'insertBox',
     @ItemId = 'TEST-001',
@@ -907,9 +992,23 @@ EXEC SP_BoxList
     @Brand = 'Test Brand',
     @CreatedBy = 'test.user';
 
--- Verify the insert was logged
+-- Verify the INSERT was logged
 SELECT TOP 1 * FROM dbo.BoxListLog
 WHERE Tag = 'insertBox'
+ORDER BY LogDate DESC;
+
+-- Test an UPDATE operation (WILL BE LOGGED)
+EXEC SP_BoxList
+    @tag = 'updateBox',
+    @RecID = 1,
+    @ItemDesc = 'Updated Description',
+    @Brand = 'Updated Brand',
+    @Active = 1,
+    @CreatedBy = 'test.user';
+
+-- Verify the UPDATE was logged
+SELECT TOP 1 * FROM dbo.BoxListLog
+WHERE Tag = 'updateBox'
 ORDER BY LogDate DESC;
 ```
 
@@ -1040,15 +1139,16 @@ GROUP BY YEAR(LogDate), MONTH(LogDate)
 ORDER BY Year DESC, Month DESC;
 ```
 
-### Most Active Users
+### Most Active Users (BoxList)
 ```sql
+-- Note: Only INSERT, UPDATE, DELETE operations are logged for BoxList
+-- SELECT operations are not tracked
 SELECT
     UserID,
     COUNT(*) AS TotalOperations,
     SUM(CASE WHEN Tag = 'insertBox' THEN 1 ELSE 0 END) AS Inserts,
     SUM(CASE WHEN Tag = 'updateBox' THEN 1 ELSE 0 END) AS Updates,
-    SUM(CASE WHEN Tag = 'deleteBox' THEN 1 ELSE 0 END) AS Deletes,
-    SUM(CASE WHEN Tag = 'ItemsGetList' THEN 1 ELSE 0 END) AS Searches
+    SUM(CASE WHEN Tag = 'deleteBox' THEN 1 ELSE 0 END) AS Deletes
 FROM dbo.BoxListLog
 WHERE LogDate >= DATEADD(MONTH, -1, GETDATE())
 GROUP BY UserID

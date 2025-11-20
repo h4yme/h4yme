@@ -28,7 +28,7 @@ BEGIN
     SET NOCOUNT ON;
 
     -- ============================================
-    -- LOGGING VARIABLES
+    -- LOGGING VARIABLES (Only for INSERT, UPDATE, DELETE operations)
     -- ============================================
     DECLARE @LogStartTime DATETIME2 = GETDATE();
     DECLARE @LogEndTime DATETIME2;
@@ -54,12 +54,10 @@ BEGIN
     BEGIN TRY
 
         -- ============================================
-        -- GET BOX LIST
+        -- GET BOX LIST (NOT LOGGED)
         -- ============================================
         IF @tag = 'ItemsGetList'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-
             SELECT
                 RecID,
                 CompanyID,
@@ -91,26 +89,16 @@ BEGIN
             ORDER BY RecID DESC
             OFFSET @Offset ROWS
             FETCH NEXT @Fetch ROWS ONLY;
-
-            SET @LogRowsAffected = @@ROWCOUNT;
-            SET @LogAdditionalInfo = 'SearchTerm: ' + ISNULL(@SearchTerm, 'NULL') +
-                                     ', Offset: ' + CAST(@Offset AS VARCHAR) +
-                                     ', Fetch: ' + CAST(@Fetch AS VARCHAR);
         END
 
         -- ============================================
-        -- GET BOX BRANDS
+        -- GET BOX BRANDS (NOT LOGGED)
         -- ============================================
         ELSE IF @tag = 'getBoxBrand'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-
             SELECT DISTINCT Brand
             FROM BoxBrand
             ORDER BY Brand;
-
-            SET @LogRowsAffected = @@ROWCOUNT;
-            SET @LogAdditionalInfo = 'Retrieved distinct brands from BoxBrand table';
         END
 
         -- ============================================
@@ -316,27 +304,6 @@ BEGIN
                 GETDATE(), @tag, @LogOperationType, @RecID, @DeletedItemID, @DeletedItemDesc, @DeletedBrand,
                 'BOX', @OldActive, 0, @CreatedBy, @LogAdditionalInfo,
                 @LogHostName, @LogAppName, @LogRowsAffected
-            );
-        END
-
-        -- ============================================
-        -- LOG SUCCESSFUL COMPLETION
-        -- ============================================
-        SET @LogEndTime = GETDATE();
-        SET @LogExecutionTime = DATEDIFF(MILLISECOND, @LogStartTime, @LogEndTime);
-
-        -- Log successful operation (for SELECT operations and others not explicitly logged above)
-        IF @tag IN ('ItemsGetList', 'getBoxBrand')
-        BEGIN
-            INSERT INTO dbo.BoxListLog (
-                LogDate, Tag, OperationType, RecID, ItemID, ItemDescription, Brand,
-                Active, UserID, SearchTerm, AdditionalInfo, HostName, AppName,
-                RowsAffected, ExecutionTime
-            )
-            VALUES (
-                @LogStartTime, @tag, @LogOperationType, @RecID, @ItemId, @ItemDesc, @Brand,
-                @Active, @CreatedBy, @SearchTerm, @LogAdditionalInfo, @LogHostName, @LogAppName,
-                @LogRowsAffected, @LogExecutionTime
             );
         END
 

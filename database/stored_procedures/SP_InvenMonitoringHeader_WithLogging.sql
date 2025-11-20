@@ -1,6 +1,6 @@
 USE [ELMI]
 GO
-/****** Object:  StoredProcedure [dbo].[SP_InvenMonitoringHeader]    Script Date: 11/20/2025 8:28:09 am ******/
+/****** Object:  StoredProcedure [dbo].[SP_InvenMonitoringHeader]    Script Date: 11/20/2025 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -46,7 +46,7 @@ BEGIN
     SET NOCOUNT ON;
 
     -- ============================================
-    -- LOGGING VARIABLES
+    -- LOGGING VARIABLES (Only for critical operations)
     -- ============================================
     DECLARE @LogStartTime DATETIME2 = GETDATE();
     DECLARE @LogEndTime DATETIME2;
@@ -79,8 +79,6 @@ BEGIN
         -- ============================================
         IF @Tag = 'GetInvenMonitoringHeader'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-
             ;WITH UserBranches AS (
                 SELECT DISTINCT BranchID
                 FROM dbo.UserBranch
@@ -120,9 +118,6 @@ BEGIN
             ORDER BY RecID DESC
             OFFSET @Offset ROWS
             FETCH NEXT @Fetch ROWS ONLY;
-
-            SET @LogRowsAffected = @@ROWCOUNT;
-            SET @LogAdditionalInfo = 'SearchTerm: ' + ISNULL(@SearchTerm, 'NULL') + ', Status: ' + ISNULL(@Status, 'NULL') + ', Offset: ' + CAST(@Offset AS VARCHAR);
         END
 
         -- ============================================
@@ -130,13 +125,9 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'getItemID'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-
             SELECT ItemID, ItemDescription
             FROM [dbo].[BoxMF]
             WHERE Active = 1;
-
-            SET @LogRowsAffected = @@ROWCOUNT;
         END
 
         -- ============================================
@@ -144,14 +135,10 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'getWarehouse'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-
             SELECT W.CompanyID, W.WhseID AS Warehouse
             FROM dbo.Warehouse AS W
             WHERE W.CompanyID = 'EATI'
             GROUP BY W.CompanyID, W.WhseID;
-
-            SET @LogRowsAffected = @@ROWCOUNT;
         END
 
         -- ============================================
@@ -159,14 +146,9 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'GetLocation'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-
             SELECT TOP 1
                 WhseID     = COALESCE(@Warehouse, ''),
                 LocationID = 'WHSE1';
-
-            SET @LogRowsAffected = @@ROWCOUNT;
-            SET @LogAdditionalInfo = 'Warehouse: ' + ISNULL(@Warehouse, 'NULL');
         END
 
         -- ============================================
@@ -174,8 +156,6 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'UserBranch'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-
             IF EXISTS (
                 SELECT 1
                 FROM Branch
@@ -204,9 +184,6 @@ BEGIN
                 WHERE Branch.CompanyID = @CompanyID
                   AND UserBranch.UserID = @UserID;
             END
-
-            SET @LogRowsAffected = @@ROWCOUNT;
-            SET @LogAdditionalInfo = 'CompanyID: ' + ISNULL(@CompanyID, 'NULL');
         END
 
         -- ============================================
@@ -214,13 +191,9 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'Branch'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-
             SELECT DISTINCT [BranchID], [BranchDesc]
             FROM [ELMI].[dbo].[Branch]
             WHERE CompanyID = @CompanyID;
-
-            SET @LogRowsAffected = @@ROWCOUNT;
         END
 
         -- ============================================
@@ -228,8 +201,6 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'GetReceiving'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-
             ;WITH UserBranches AS (
                 SELECT DISTINCT BranchID
                 FROM dbo.UserBranch
@@ -269,9 +240,6 @@ BEGIN
             ORDER BY RecID DESC
             OFFSET @Offset ROWS
             FETCH NEXT @Fetch ROWS ONLY;
-
-            SET @LogRowsAffected = @@ROWCOUNT;
-            SET @LogAdditionalInfo = 'TranType: Receiving, SearchTerm: ' + ISNULL(@SearchTerm, 'NULL');
         END
 
         -- ============================================
@@ -279,9 +247,6 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'GetOnhand'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-            SET @LogAdditionalInfo = 'WhseID: ' + ISNULL(@WhseID, 'NULL') + ', ItemID: ' + ISNULL(@ItemID, 'NULL') + ', FromDate: ' + ISNULL(CAST(@FromDate AS VARCHAR), 'NULL') + ', ToDate: ' + ISNULL(CAST(@ToDate AS VARCHAR), 'NULL');
-
             ;WITH W AS (
                 SELECT WhseID, WarehouseName = MAX(WarehouseName)
                 FROM dbo.Warehouse
@@ -391,16 +356,14 @@ BEGIN
             LEFT JOIN IU iu ON iu.ItemID = oh.ItemID
             LEFT JOIN LatestIncoming li ON li.WhseID = oh.WhseID AND li.ItemID = oh.ItemID AND li.rn = 1
             ORDER BY w.WarehouseName, oh.ItemID;
-
-            SET @LogRowsAffected = @@ROWCOUNT;
         END
 
         -- ============================================
-        -- SEARCH ONHAND BY LOCATION
+        -- SEARCH ONHAND BY LOCATION (LOGGED)
         -- ============================================
         ELSE IF @Tag = 'SearchOnhandByLocation'
         BEGIN
-            SET @LogOperationType = 'SELECT';
+            SET @LogOperationType = 'SEARCH';
             SET @LogAdditionalInfo = 'Warehouse: ' + ISNULL(@Warehouse, 'NULL') + ', ItemID: ' + ISNULL(@ItemID, 'NULL') + ', RefNo: ' + ISNULL(@RefNo, 'NULL');
 
             ;WITH W AS (
@@ -542,8 +505,6 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'GetTransfer'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-
             ;WITH UserBranches AS (
                 SELECT DISTINCT BranchID
                 FROM dbo.UserBranch
@@ -584,9 +545,6 @@ BEGIN
             ORDER BY RecID DESC
             OFFSET @Offset ROWS
             FETCH NEXT @Fetch ROWS ONLY;
-
-            SET @LogRowsAffected = @@ROWCOUNT;
-            SET @LogAdditionalInfo = 'TranType: Transfer, SearchTerm: ' + ISNULL(@SearchTerm, 'NULL');
         END
 
         -- ============================================
@@ -594,9 +552,6 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'GetAvailableItems'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-            SET @LogAdditionalInfo = 'Warehouse: ' + ISNULL(@Warehouse, 'NULL');
-
             CREATE TABLE #TempAvailableItems (
                 [Warehouse Code] nvarchar(50),
                 WarehouseName nvarchar(255),
@@ -725,14 +680,12 @@ BEGIN
             BEGIN
                 SELECT * FROM #TempAvailableItems
                 ORDER BY WarehouseName, ItemID;
-                SET @LogRowsAffected = @@ROWCOUNT;
             END
             ELSE
             BEGIN
                 SELECT '' AS [Warehouse Code], '' AS WarehouseName, 'NO AVAILABLE ITEMS' AS ItemID,
                        'No available items' AS [Item], '' AS [Location], '' AS [Reference #],
                        NULL AS [Reference Date], 0 AS [Available Qty];
-                SET @LogRowsAffected = 0;
             END
 
             DROP TABLE #TempAvailableItems;
@@ -743,8 +696,6 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'getHistory'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-
             ;WITH H AS (
                 SELECT
                     CreatedDate = CAST(IM.ModifiedDate AS datetime2(0)),
@@ -802,16 +753,14 @@ BEGIN
                 WHERE iu.ItemID = h.ItemID
             ) AS iu
             ORDER BY h.CreatedDate ASC, h.TranID ASC, h.TranSortKey DESC;
-
-            SET @LogRowsAffected = @@ROWCOUNT;
         END
 
         -- ============================================
-        -- SEARCH HISTORY
+        -- SEARCH HISTORY (LOGGED)
         -- ============================================
         ELSE IF @Tag = 'SearchHistory'
         BEGIN
-            SET @LogOperationType = 'SELECT';
+            SET @LogOperationType = 'SEARCH';
             SET @LogAdditionalInfo = 'Warehouse: ' + ISNULL(@Warehouse, 'NULL') + ', ItemID: ' + ISNULL(@ItemID, 'NULL') + ', TransactionID: ' + ISNULL(@TransactionID, 'NULL');
 
             ;WITH UserBranches AS (
@@ -908,17 +857,12 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'GetInvenMonitoringHeaderByRecID'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-            SET @LogAdditionalInfo = 'RecID: ' + CAST(@RecID AS VARCHAR);
-
             SELECT
                 RecID, TranID, TranType, Vendor, Customer, Warehouse,
                 CreatedBy, CreatedDate, ModifiedBy, ModifiedDate,
                 Status, Remarks, RefNum, ToWhse
             FROM dbo.InvenMonitoringHeader
             WHERE RecID = @RecID;
-
-            SET @LogRowsAffected = @@ROWCOUNT;
         END
 
         -- ============================================
@@ -926,17 +870,12 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'GetInvenMonitoringHeaderByTranID'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-            SET @LogAdditionalInfo = 'TranID: ' + ISNULL(@TranID, 'NULL');
-
             SELECT
                 RecID, TranID, TranType, Vendor, Customer, Warehouse,
                 CreatedBy, CreatedDate, ModifiedBy, ModifiedDate,
                 Status, Remarks, RefNum, ToWhse
             FROM dbo.InvenMonitoringHeader
             WHERE TranID = @TranID;
-
-            SET @LogRowsAffected = @@ROWCOUNT;
         END
 
         -- ============================================
@@ -944,9 +883,6 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'GetInvenMonitoringDetailsByTranID'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-            SET @LogAdditionalInfo = 'TranID: ' + ISNULL(@TranID, 'NULL');
-
             SELECT
                 RecID, TranID, ItemID, ItemDescription, Quantity,
                 Warehouse, Location, Remarks, Status
@@ -954,8 +890,6 @@ BEGIN
             WHERE TranID = @TranID
               AND ISNULL(Status, '') != 'REMOVED'
             ORDER BY RecID;
-
-            SET @LogRowsAffected = @@ROWCOUNT;
         END
 
         -- ============================================
@@ -963,14 +897,10 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'getVendorID'
         BEGIN
-            SET @LogOperationType = 'SELECT';
-
             SELECT DISTINCT Vendor
             FROM dbo.InvenMonitoringHeader
             WHERE Vendor IS NOT NULL AND Vendor != ''
             ORDER BY Vendor;
-
-            SET @LogRowsAffected = @@ROWCOUNT;
         END
 
         -- ============================================
@@ -978,9 +908,6 @@ BEGIN
         -- ============================================
         ELSE IF @Tag = 'GenerateTranID'
         BEGIN
-            SET @LogOperationType = 'GENERATE';
-            SET @LogAdditionalInfo = 'TranType: ' + ISNULL(@TranType, 'NULL');
-
             DECLARE @Prefix NVARCHAR(10);
             DECLARE @MaxNum INT;
             DECLARE @NewGeneratedTranID NVARCHAR(50);
@@ -1001,13 +928,10 @@ BEGIN
             SET @NewGeneratedTranID = @Prefix + RIGHT('0000000000' + CAST(@MaxNum + 1 AS VARCHAR(10)), 6);
 
             SELECT @NewGeneratedTranID AS TranID;
-
-            SET @LogRowsAffected = 1;
-            SET @LogAdditionalInfo = @LogAdditionalInfo + ', Generated TranID: ' + @NewGeneratedTranID;
         END
 
         -- ============================================
-        -- INSERT HEADER AND DETAILS
+        -- INSERT HEADER AND DETAILS (LOGGED)
         -- ============================================
         ELSE IF @Tag = 'InsertInvenMonitoringHeader'
         BEGIN
@@ -1090,7 +1014,7 @@ BEGIN
         END
 
         -- ============================================
-        -- UPDATE HEADER
+        -- UPDATE HEADER (LOGGED)
         -- ============================================
         ELSE IF @Tag = 'UpdateInvenMonitoringHeader'
         BEGIN
@@ -1139,7 +1063,7 @@ BEGIN
         END
 
         -- ============================================
-        -- UPDATE STATUS ONLY
+        -- UPDATE STATUS ONLY (LOGGED)
         -- ============================================
         ELSE IF @Tag = 'UpdateInvenMonitoringHeaderStatus'
         BEGIN
@@ -1180,7 +1104,7 @@ BEGIN
         END
 
         -- ============================================
-        -- UPDATE DETAILS
+        -- UPDATE DETAILS (LOGGED)
         -- ============================================
         ELSE IF @Tag = 'UpdateInvenMonitoringDetails'
         BEGIN
@@ -1267,7 +1191,7 @@ BEGIN
         END
 
         -- ============================================
-        -- INSERT NEW DETAILS
+        -- INSERT NEW DETAILS (LOGGED)
         -- ============================================
         ELSE IF @Tag = 'UpdateInsertInvenMonitoringDetails'
         BEGIN
@@ -1324,7 +1248,7 @@ BEGIN
         END
 
         -- ============================================
-        -- MARK DETAILS AS REMOVED
+        -- MARK DETAILS AS REMOVED (LOGGED)
         -- ============================================
         ELSE IF @Tag = 'MarkDetailsRemoved'
         BEGIN
@@ -1386,15 +1310,13 @@ BEGIN
         END
 
         -- ============================================
-        -- LOG SUCCESSFUL COMPLETION
+        -- LOG ONLY CRITICAL OPERATIONS
         -- ============================================
         SET @LogEndTime = GETDATE();
         SET @LogExecutionTime = DATEDIFF(MILLISECOND, @LogStartTime, @LogEndTime);
 
-        -- Log successful operation (for non-logged operations above)
-        IF @Tag NOT IN ('InsertInvenMonitoringHeader', 'UpdateInvenMonitoringHeader',
-                        'UpdateInvenMonitoringHeaderStatus', 'UpdateInvenMonitoringDetails',
-                        'UpdateInsertInvenMonitoringDetails', 'MarkDetailsRemoved')
+        -- Log only specific important search operations (SearchOnhandByLocation and SearchHistory)
+        IF @Tag IN ('SearchOnhandByLocation', 'SearchHistory')
         BEGIN
             INSERT INTO dbo.InvenMonitoringLog (
                 LogDate, Tag, OperationType, TranID, TranType, RecID, UserID,
