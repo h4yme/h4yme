@@ -18,7 +18,6 @@ jobs:
           base: ""
           plugin_isocalendar: yes
           plugin_isocalendar_duration: half-year
-          config_theme: tokyonight
 
       - name: Achievements
         uses: lowlighter/metrics@latest
@@ -28,7 +27,6 @@ jobs:
           base: ""
           plugin_achievements: yes
           plugin_achievements_display: compact
-          config_theme: tokyonight
 
       - name: Starred Topics
         uses: lowlighter/metrics@latest
@@ -39,7 +37,6 @@ jobs:
           plugin_topics: yes
           plugin_topics_mode: icons
           plugin_topics_limit: 20
-          config_theme: tokyonight
 
       - name: Languages and Header
         uses: lowlighter/metrics@latest
@@ -49,4 +46,3 @@ jobs:
           base: header, activity, community, repositories, metadata
           plugin_languages: yes
           plugin_languages_details: percentage
-          config_theme: tokyonight
