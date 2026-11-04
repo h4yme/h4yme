@@ -1,4 +1,4 @@
-<a href="https://h4yme-portfolio.vercel.app/">
+<a href="https://www.jaimesmanicar.com/">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/banner-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/banner-light.svg">
@@ -7,42 +7,26 @@
 </a>
 
 <p align="center">
-  <a href="https://h4yme-portfolio.vercel.app/"><b>Portfolio</b></a>
-  &nbsp;&middot;&nbsp;
-  <a href="https://linkedin.com/in/jmanicar"><b>LinkedIn</b></a>
-  &nbsp;&middot;&nbsp;
-  <a href="mailto:manicar.jaimesaldrich.trecero@gmail.com"><b>Email</b></a>
+  <a href="https://www.jaimesmanicar.com/"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/btn-site-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/btn-site-light.svg"><img src="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/btn-site-dark.svg" alt="Portfolio: jaimesmanicar.com" height="64"></picture></a>
+  <a href="https://linkedin.com/in/jmanicar"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/btn-linkedin-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/btn-linkedin-light.svg"><img src="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/btn-linkedin-dark.svg" alt="LinkedIn" height="64"></picture></a>
+  <a href="mailto:manicar.jaimesaldrich.trecero@gmail.com"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/btn-email-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/btn-email-light.svg"><img src="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/btn-email-dark.svg" alt="Email" height="64"></picture></a>
 </p>
 
-I build and ship production web applications end to end, from database design to deployment. I'm currently a full stack engineer at **CTRL**, working across Next.js, PostgreSQL, payments, background jobs, AI features, and AWS.
+<picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/whoami-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/whoami-light.svg"><img src="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/whoami-dark.svg" alt="I build and ship production web applications end to end, from database design to deployment. Currently a full stack engineer at CTRL, based in Quezon City, Philippines." width="100%"></picture>
 
-## Experience
+<picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/experience-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/experience-light.svg"><img src="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/experience-dark.svg" alt="Experience: Full Stack Engineer at CTRL, August 2026 to present. Software Developer Intern at Excellence Appliance Technologies, September 2025 to April 2026. Capstone Research Lead Developer at SYNERGY Conference, Quezon City University, August 2025 to April 2026, Best Research Paper." width="100%"></picture>
 
-| Role | Company | When |
-| :--- | :--- | :--- |
-| **Full Stack Engineer** | CTRL | Aug 2026 – Present |
-| **Software Developer Intern** | Excellence Appliance Technologies | Sep 2025 – Apr 2026 |
-| **Capstone Research Lead Developer** | SYNERGY Conference, Quezon City University | Aug 2025 – Apr 2026 |
+<picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/rule-work-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/rule-work-light.svg"><img src="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/rule-work-dark.svg" alt="Selected work" width="100%"></picture>
 
-## Selected work
+<a href="https://sync-app-opal.vercel.app/"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/project-sync-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/project-sync-light.svg"><img src="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/project-sync-dark.svg" alt="Sync: AI-powered health companion app with smart daily insights" width="100%"></picture></a>
 
-| Project | What it is |
-| :--- | :--- |
-| [**Sync**](https://github.com/h4yme/sync-app) | AI-powered health companion app with smart daily insights. [Visit the site ↗](https://sync-app-opal.vercel.app/) |
-| [**LiteRise**](https://github.com/h4yme/LiteRise) | Gamified adaptive reading app using Item Response Theory. Won **Best Research Paper** at SYNERGY 2026. |
-| [**LLISYNCH**](https://github.com/h4yme/LLISYNCH-Automated-School-Management-System) | Automated school management system. |
+<a href="https://github.com/h4yme/LiteRise"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/project-literise-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/project-literise-light.svg"><img src="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/project-literise-dark.svg" alt="LiteRise: gamified adaptive reading app using Item Response Theory. Won Best Research Paper at SYNERGY 2026" width="100%"></picture></a>
 
-## Stack
+<a href="https://github.com/h4yme/LLISYNCH-Automated-School-Management-System"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/project-llisynch-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/project-llisynch-light.svg"><img src="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/project-llisynch-dark.svg" alt="LLISYNCH: automated school management system" width="100%"></picture></a>
 
-| | |
-| :--- | :--- |
-| **Frontend** | `Next.js` `JavaScript` `HTML` `CSS` `Tailwind CSS` |
-| **Backend** | `REST APIs` `Node.js` `C#` `ASP.NET MVC` `PHP` `Java` |
-| **Data** | `PostgreSQL` `SQL Server` `MySQL` |
-| **Services** | `Stripe` `Clerk` `Inngest` `Sentry` `Fal AI` `MCP` |
-| **Cloud** | `AWS` `Docker` `Azure` `Vercel` |
+<picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/stack-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/stack-light.svg"><img src="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/stack-dark.svg" alt="Stack. Frontend: Next.js, JavaScript, HTML, CSS, Tailwind CSS. Backend: REST APIs, Node.js, C#, ASP.NET MVC, PHP, Java. Data: PostgreSQL, SQL Server, MySQL. Services: Stripe, Clerk, Inngest, Sentry, Fal AI, MCP. Cloud: AWS, Docker, Azure, Vercel." width="100%"></picture>
 
-## Activity
+<picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/rule-activity-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/rule-activity-light.svg"><img src="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/rule-activity-dark.svg" alt="Activity" width="100%"></picture>
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/h4yme/h4yme/main/metrics.plugin.isocalendar.svg" alt="Contribution calendar" width="480">
