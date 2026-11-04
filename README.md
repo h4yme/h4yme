@@ -26,11 +26,4 @@
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/stack-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/stack-light.svg"><img src="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/stack-dark.svg" alt="Stack. Frontend: Next.js, JavaScript, HTML, CSS, Tailwind CSS. Backend: REST APIs, Node.js, C#, ASP.NET MVC, PHP, Java. Data: PostgreSQL, SQL Server, MySQL. Services: Stripe, Clerk, Inngest, Sentry, Fal AI, MCP. Cloud: AWS, Docker, Azure, Vercel." width="100%"></picture>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/rule-activity-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/rule-activity-light.svg"><img src="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/rule-activity-dark.svg" alt="Activity" width="100%"></picture>
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/h4yme/h4yme/main/metrics.plugin.isocalendar.svg" alt="Contribution calendar" width="480">
-</p>
-<p align="center">
-  <img src="https://raw.githubusercontent.com/h4yme/h4yme/main/metrics.classic.svg" alt="GitHub stats and most used languages" width="480">
-</p>
+<picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/stats-dark.svg"><source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/stats-light.svg"><img src="https://raw.githubusercontent.com/h4yme/h4yme/main/assets/stats-dark.svg" alt="GitHub activity: contribution heatmap, streaks, stats, and top languages, updated daily" width="100%"></picture>
