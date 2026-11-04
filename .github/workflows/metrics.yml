@@ -19,25 +19,6 @@ jobs:
           plugin_isocalendar: yes
           plugin_isocalendar_duration: half-year
 
-      - name: Achievements
-        uses: lowlighter/metrics@latest
-        with:
-          filename: metrics.plugin.achievements.svg
-          token: ${{ secrets.METRICS_TOKEN }}
-          base: ""
-          plugin_achievements: yes
-          plugin_achievements_display: compact
-
-      - name: Starred Topics
-        uses: lowlighter/metrics@latest
-        with:
-          filename: metrics.plugin.topics.svg
-          token: ${{ secrets.METRICS_TOKEN }}
-          base: ""
-          plugin_topics: yes
-          plugin_topics_mode: icons
-          plugin_topics_limit: 20
-
       - name: Languages and Header
         uses: lowlighter/metrics@latest
         with:
